@@ -12,6 +12,10 @@ app.get('/metadata/controllers', vatsim.metadata.getTotalControllers);
 
 app.get('/airports/:icao', vatsim.airports.getAirportData);
 
+app.get('/pilots/byCID/:cid', vatsim.pilots.pilotByCID);
+app.get('/pilots/byAircraft/:aircraft', vatsim.pilots.pilotByAircraft);
+app.get('/pilots/byCompany/:company', vatsim.pilots.pilotByCompany);
+
 let port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`listening on port ${port}`);

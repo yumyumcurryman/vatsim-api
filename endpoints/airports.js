@@ -9,18 +9,23 @@ async function getAirportData(req, res, next) {
     let icao = req.params.icao.toUpperCase();
     let data = await network.getVatsimData();
     let pilots = data.pilots;
-    var arrivals = 0;
-    var departures = 0;
+    var numArrivals = 0;
+    var numDepartures = 0;
+    var departures = [];
+    var arrivals = [];
     var numControllers = 0;
+    var aControllers = [];
     for (var i = 0; i < pilots.length; i++) {
         let pilot = pilots[i];
         if (pilot.flight_plan != null) {
             let flightPlan = pilot.flight_plan;
             if (flightPlan.departure.toUpperCase() == icao) {
-                departures++;
+                numDepartures++;
+                departures.push(pilot);
             }
             if (flightPlan.arrival.toUpperCase() == icao) {
-                arrivals++;
+                numArrivals++;
+                arrivals.push(pilot);
             }
         }
     }
@@ -29,14 +34,20 @@ async function getAirportData(req, res, next) {
         let controller = controllers[i];
         if (controller.callsign.includes(icao)) {
             numControllers++;
+            aControllers.push(controller);
         }
     }
     let payload = {
+        "metadata" : {
+            "departures": numDepartures,
+            "arrivals": numArrivals,
+            "controllers": numControllers
+        },
         "departures": departures,
         "arrivals": arrivals,
-        "controllers": numControllers
+        "controllers": aControllers
     }
-    res.send(payload);
+    res.type('json').send(JSON.stringify(payload, null, 2) + '\n');
 }
 
 module.exports = { getAirportData }
